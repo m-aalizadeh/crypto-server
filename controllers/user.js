@@ -8,7 +8,6 @@ exports.signUp = async (req, res) => {
   try {
     const { username, password, email, role } = req.body;
     const errors = validationResult(req).array();
-    console.log(errors);
     if (errors.length) {
       return res.status(422).json({
         status: "error",
@@ -39,7 +38,6 @@ exports.signUp = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "User Created Successfully",
-      // token: signToken({ username, userId: newUser._id.toString() }),
       newUser,
     });
   } catch (error) {
@@ -78,13 +76,12 @@ exports.signin = async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000, // 1 day
+      maxAge: 24 * 60 * 60 * 1000,
     });
     return res.status(200).json({
       status: "success",
       message: "User signed in successfully",
       data: user,
-      // token: token,
     });
   } catch (error) {
     return res

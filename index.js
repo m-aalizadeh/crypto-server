@@ -16,20 +16,20 @@ connectDb();
 const port = process.env.PORT || 8000;
 
 const app = express();
-app.use(helmet());
-app.use(
-  helmet.hsts({
-    maxAge: 63072000,
-    includeSubDomains: true,
-    preload: true,
-  })
-);
+// app.use(helmet());
+// app.use(
+//   helmet.hsts({
+//     maxAge: 63072000,
+//     includeSubDomains: true,
+//     preload: true,
+//   })
+// );
 app.use(xss());
 app.use(rateLimit);
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.ALLOWED_ORIGIN,
     credentials: true,
   })
 );
