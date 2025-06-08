@@ -3,12 +3,15 @@ const cors = require("cors");
 const helmet = require("helmet");
 const xss = require("xss-clean");
 const cookieParser = require("cookie-parser");
-const rateLimit = require("./middlewares/rateLimit");
-const timeout = require("./middlewares/timeLimit");
-const { activityLogger, errorLogger } = require("./middlewares/activityLogger");
-const routes = require("./routes");
+const rateLimit = require("./src/middlewares/rateLimit");
+const timeout = require("./src/middlewares/timeLimit");
+const {
+  activityLogger,
+  errorLogger,
+} = require("./src/middlewares/activityLogger");
+const routes = require("./src/routes");
 const dotenv = require("dotenv");
-const { connectDb } = require("./config/database");
+const { connectDb } = require("./src/config/database");
 
 dotenv.config();
 connectDb();
@@ -16,14 +19,14 @@ connectDb();
 const port = process.env.PORT || 8000;
 
 const app = express();
-// app.use(helmet());
-// app.use(
-//   helmet.hsts({
-//     maxAge: 63072000,
-//     includeSubDomains: true,
-//     preload: true,
-//   })
-// );
+app.use(helmet());
+app.use(
+  helmet.hsts({
+    maxAge: 63072000,
+    includeSubDomains: true,
+    preload: true,
+  })
+);
 app.use(xss());
 app.use(rateLimit);
 app.use(cookieParser());
