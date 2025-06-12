@@ -16,16 +16,22 @@ module.exports = (io) => {
   const fetchCryptoPrices = async () => {
     try {
       const response = await axios.get(
-        "https://api.binance.com/api/v3/ticker/24hr"
+        "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false"
       );
       const prices = [];
-      response.data.coins.forEach((coin) => {
+      response.data.forEach((coin) => {
         prices.push({
-          name: coin.name,
-          price: coin.price,
+          id: coin.id,
           symbol: coin.symbol,
-          change: coin.change,
-          sparkline: coin.sparkline,
+          name: coin.name,
+          image: coin.image,
+          current_price: coin.current_price,
+          market_cap: coin.market_cap,
+          market_cap_rank: coin.market_cap_rank,
+          price_change_percentage_24h: coin.price_change_percentage_24h,
+          total_volume: coin.total_volume,
+          circulating_supply: coin.circulating_supply,
+          max_supply: coin.max_supply,
         });
       });
       return prices;
@@ -38,5 +44,5 @@ module.exports = (io) => {
   setInterval(async () => {
     const prices = await fetchCryptoPrices();
     io.emit("updatePrices", prices);
-  }, 10000);
+  }, 60000);
 };
