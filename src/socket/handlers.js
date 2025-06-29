@@ -2,14 +2,14 @@ const axios = require("axios");
 
 module.exports = (io) => {
   io.on("connection", (socket) => {
-    console.log("✅ کاربر جدید متصل شد:", socket.id);
+    console.log("User connected", socket.id);
 
     socket.on("sendMessage", (message) => {
       io.emit("receiveMessage", message);
     });
 
     socket.on("disconnect", () => {
-      console.log("❌ کاربر قطع شد:", socket.id);
+      console.log("User disconnected", socket.id);
     });
   });
 
@@ -36,7 +36,7 @@ module.exports = (io) => {
       });
       return prices;
     } catch (error) {
-      console.error("خطا در دریافت قیمت‌ها:", error);
+      console.error("Error while fetching data:", error);
       return {};
     }
   };
