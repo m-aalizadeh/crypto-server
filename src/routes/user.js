@@ -5,6 +5,7 @@ const {
   logout,
   signUp,
   signin,
+  updateUser,
   getAllUsers,
   validateToken,
   getCurrentUser,
@@ -82,5 +83,6 @@ router.get("/logout", logout);
 router.get("/currentUser", verifyToken, getCurrentUser);
 router.get("/allUsers", verifyToken, getAllUsers);
 router.get("/verifyToken", verifyToken, validateToken);
+router.patch("/updateUser/:id", updateUser);
 
 module.exports = router;

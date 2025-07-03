@@ -118,7 +118,7 @@ exports.getCurrentUser = async (req, res) => {
         .status(404)
         .json({ status: "error", message: "User not found" });
     }
-    return res.status(200).json({ status: "success", user });
+    return res.status(200).json({ status: "success", data: user });
   } catch (error) {
     return res
       .status(500)
@@ -135,5 +135,41 @@ exports.validateToken = async (req, res) => {
     return res
       .status(500)
       .json({ status: "error", message: "Error during fetching users " });
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  const { params = {}, body } = req;
+  try {
+    if (!Object.keys(body).length) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "There is no data to update" });
+    }
+    const user = await User.findOne({ _id: params.id });
+    const newData = {};
+    Object.keys(body).forEach((field) => {
+      if (body[field] !== user[field]) {
+        newData[field] = body[field];
+      }
+    });
+    if (!Object.keys(newData).length) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "Please modify the properties!" });
+    }
+    const newUser = await User.findOneAndUpdate({ _id: params.id }, newData, {
+      new: true,
+    });
+    return res.status(200).json({
+      status: "success",
+      message: "User updated Successfully!",
+      newUser,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      status: "error",
+      message: "Error during update customer  " + err.message,
+    });
   }
 };
