@@ -10,15 +10,16 @@ const WatchlistSchema = new Schema(
     },
     items: [
       {
-        coinId: { type: String, required: true },
+        id: { type: String, required: true },
         symbol: { type: String, required: true },
         name: { type: String, required: true },
         image: String,
-        price: Number,
-        priceChange24h: Number,
-        lastUpdated: Date,
-        notes: String,
-        targetPrice: Number,
+        current_price: Number,
+
+        price_change_percentage_24h: Number,
+        // lastUpdated: Date,
+        // notes: String,
+        market_cap: Number,
       },
     ],
   },

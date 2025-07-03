@@ -1,3 +1,4 @@
+const axios = require("axios");
 const WatchList = require("../models/Watchlist");
 
 exports.addToWatchlist = async (req, res) => {
@@ -7,9 +8,7 @@ exports.addToWatchlist = async (req, res) => {
     let watchlist = await WatchList.findOne({ user: userId });
 
     if (watchlist) {
-      const coinExits = watchlist.items.find(
-        (item) => item.coinId === coinData.coinId
-      );
+      const coinExits = watchlist.items.find((item) => item.id === coinData.id);
       if (coinExits) {
         return res.status(400).json({
           status: "error",
@@ -24,9 +23,9 @@ exports.addToWatchlist = async (req, res) => {
         $push: { items: coinData },
       },
       {
-        upsert: true, // Create if doesn't exist
-        new: true, // Return the modified document
-        runValidators: true, // Validate the data
+        upsert: true,
+        new: true,
+        runValidators: true,
       }
     );
 
@@ -49,9 +48,7 @@ exports.removeFromWatchlist = async (req, res) => {
 
     const watchlist = await WatchList.findOne({ user: userId });
     if (watchlist) {
-      watchlist.items = watchlist.items.filter(
-        (item) => item.coinId !== coinId
-      );
+      watchlist.items = watchlist.items.filter((item) => item.id !== coinId);
       await watchlist.save();
       return res.status(200).json({
         status: "success",
@@ -77,9 +74,7 @@ exports.getWatchlist = async (req, res) => {
     const watchlist = await WatchList.findOne({ user: userId });
 
     if (watchlist) {
-      return res
-        .status(200)
-        .json({ status: "success", watchlist: watchlist.items });
+      return res.status(200).json({ status: "success", data: watchlist.items });
     }
 
     res.status(200).json([]);
