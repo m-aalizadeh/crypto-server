@@ -1,15 +1,55 @@
 const axios = require("axios");
-
+const User = require("../models/User");
+const { verifyToken } = require("../utils/isAuth");
+const jwt = require("jsonwebtoken");
 module.exports = (io) => {
-  io.on("connection", (socket) => {
-    console.log("User connected", socket.id);
+  const users = new Map();
 
-    socket.on("sendMessage", (message) => {
-      io.emit("receiveMessage", message);
+  io.use(async (socket, next) => {
+    try {
+      const token = socket.handshake.auth.token;
+      if (!token) {
+        return next(new Error("Authentication Error"));
+      }
+      const decoded = await jwt.verify(token, process.env.SECRET_KEY);
+      const user = await User.findById(decoded.userId);
+      if (!user) {
+        return next(new Error("Authentication error"));
+      }
+      socket.user = user;
+      users.set(user._id.toString(), socket.id);
+      next();
+    } catch (error) {
+      next(new Error("Authentication error"));
+    }
+  });
+
+  io.on("connection", (socket) => {
+    console.log(`User connected: ${socket.user.username} (${socket.id})`);
+
+    socket.join(`user_${socket.user._id}`);
+
+    socket.on("sendMessage", async ({ recipientId, message }) => {
+      try {
+        const recipientSocketId = users.get(recipientId);
+
+        if (recipientSocketId) {
+          io.to(recipientSocketId).emit("receiveMessage", {
+            sender: socket.user._id,
+            message,
+            timestamp: new Date(),
+          });
+        }
+
+        // await saveMessageToDB(socket.user._id, recipientId, message);
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     });
 
     socket.on("disconnect", () => {
-      console.log("User disconnected", socket.id);
+      users.delete(socket.user._id.toString());
+      console.log(`User disconnected: ${socket.user.username} (${socket.id})`);
     });
   });
 
