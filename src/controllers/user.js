@@ -26,6 +26,7 @@ exports.signUp = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      online: true,
     });
     await newUser.save();
     const token = signToken({ username, userId: newUser._id.toString() });
@@ -38,7 +39,7 @@ exports.signUp = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "User Created Successfully",
-      newUser,
+      data: { token, user: newUser },
     });
   } catch (error) {
     return res
@@ -71,6 +72,13 @@ exports.signin = async (req, res) => {
         .status(401)
         .json({ status: "error", message: "Invalid password" });
     }
+    const updatedUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        online: true,
+      },
+      { new: true }
+    );
     const token = signToken({ username, userId: user._id.toString() });
     res.cookie("token", token, {
       httpOnly: true,
@@ -81,7 +89,7 @@ exports.signin = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "User signed in successfully",
-      data: user,
+      data: { token, user: updatedUser },
     });
   } catch (error) {
     return res
@@ -101,7 +109,16 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-exports.logout = (req, res) => {
+exports.logout = async (req, res) => {
+  // const token = req.cookies.token;
+  // const decoded = await jwt.verify(token, process.env.SECRET_KEY);
+  // await User.findByIdAndUpdate(
+  //   decoded.userId,
+  //   {
+  //     online: false,
+  //   },
+  //   { new: true }
+  // );
   res.clearCookie("token");
   res
     .status(200)
