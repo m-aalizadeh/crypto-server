@@ -8,7 +8,11 @@ module.exports = (server) => {
     },
   });
 
-  require("./handlers")(io);
+  const chatNamespace = io.of("/chat");
+  const cryptoNamespace = io.of("/crypto");
+
+  require("./chatHandlers")(chatNamespace);
+  require("./cryptoHandlers")(cryptoNamespace);
 
   return io;
 };

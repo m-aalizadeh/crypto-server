@@ -1,18 +1,6 @@
 const axios = require("axios");
 
-module.exports = (io) => {
-  io.on("connection", (socket) => {
-    console.log("User connected", socket.id);
-
-    socket.on("sendMessage", (message) => {
-      io.emit("receiveMessage", message);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("User disconnected", socket.id);
-    });
-  });
-
+module.exports = (cryptoNamespace) => {
   const fetchCryptoPrices = async () => {
     try {
       const response = await axios.get(
@@ -36,13 +24,28 @@ module.exports = (io) => {
       });
       return prices;
     } catch (error) {
-      console.error("Error while fetching data:", error);
-      return {};
+      console.error("Crypto API error:", error);
+      return [];
     }
   };
 
+  cryptoNamespace.on("connection", (socket) => {
+    console.log(`Crypto data connection: ${socket.id}`);
+
+    // Send initial data on connection
+    fetchCryptoPrices().then((prices) => {
+      socket.emit("initialPrices", prices);
+    });
+
+    // Handle disconnection
+    socket.on("disconnect", () => {
+      console.log(`Crypto data disconnected: ${socket.id}`);
+    });
+  });
+
+  // Update all clients at intervals
   setInterval(async () => {
     const prices = await fetchCryptoPrices();
-    io.emit("updatePrices", prices);
+    cryptoNamespace.emit("updatePrices", prices);
   }, 60000);
 };

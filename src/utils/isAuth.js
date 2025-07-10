@@ -1,4 +1,6 @@
 const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+require("dotenv").config();
 
 exports.verifyToken = async (req, res, next) => {
   try {
@@ -25,4 +27,18 @@ exports.signToken = (payload) => {
   return jwt.sign(payload, process.env.SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRE,
   });
+};
+
+exports.validateToken = async (token) => {
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.SECRET_KEY || "1234!@#%<{*&)"
+    );
+    const user = await User.findById(decoded.userId);
+    return user;
+  } catch (error) {
+    console.error("Token validation error:", error);
+    return null;
+  }
 };

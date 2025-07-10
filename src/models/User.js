@@ -19,7 +19,7 @@ const userSchema = new Schema({
     enum: ["admin", "mentor"],
     default: "admin",
   },
-  exercise: [{ type: Schema.Types.ObjectId, ref: "Exercise" }],
+  online: { type: Boolean, default: false },
 });
 
 const User = model("User", userSchema);
