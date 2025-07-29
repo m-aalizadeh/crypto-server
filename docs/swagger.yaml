@@ -1,0 +1,591 @@
+paths:
+  /api/v1/auth/register:
+    post:
+      summary: Register a new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  description: The user's desired username.
+                email:
+                  type: string
+                  format: email
+                  description: The user's email address.
+                password:
+                  type: string
+                  format: password
+                  description: The user's password.
+      responses:
+        "201":
+          description: User registered successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: User registered successfully!
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: 60c72b2f9b1e8e001c8e8e8e
+                      username:
+                        type: string
+                        example: testuser
+                      email:
+                        type: string
+                        example: test@example.com
+        "400":
+          description: Invalid input or user already exists.
+        "500":
+          description: Server error.
+  /api/v1/auth/login:
+    post:
+      summary: Log in a user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: The user's email address.
+                password:
+                  type: string
+                  format: password
+                  description: The user's password.
+      responses:
+        "200":
+          description: User logged in successfully.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: token=your_jwt_token_here; Path=/; HttpOnly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: User logged in successfully!
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: 60c72b2f9b1e8e001c8e8e8e
+                      username:
+                        type: string
+                        example: testuser
+                      email:
+                        type: string
+                        example: test@example.com
+        "400":
+          description: Invalid credentials.
+        "500":
+          description: Server error.
+  /api/v1/crypto/allCryptos:
+    get:
+      summary: Fetch all cryptocurrencies
+      tags:
+        - Crypto
+      responses:
+        "200":
+          description: Successfully fetched all cryptocurrencies.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: bitcoin
+                        symbol:
+                          type: string
+                          example: btc
+                        name:
+                          type: string
+                          example: Bitcoin
+                        image:
+                          type: string
+                          example: https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579
+                        current_price:
+                          type: number
+                          format: float
+                          example: 30000.00
+                        market_cap:
+                          type: number
+                          format: float
+                          example: 589000000000
+                        market_cap_rank:
+                          type: integer
+                          example: 1
+                        price_change_percentage_24h:
+                          type: number
+                          format: float
+                          example: -1.23
+                        total_volume:
+                          type: number
+                          format: float
+                          example: 15000000000
+                        circulating_supply:
+                          type: number
+                          format: float
+                          example: 19500000
+                        max_supply:
+                          type: number
+                          format: float
+                          nullable: true
+                          example: 21000000
+        "500":
+          description: Server error.
+  /api/v1/watchlist/addWatchlist:
+    post:
+      summary: Add a cryptocurrency to the user's watchlist
+      tags:
+        - Watchlist
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cryptoId
+              properties:
+                cryptoId:
+                  type: string
+                  description: The ID of the cryptocurrency to add.
+      responses:
+        "200":
+          description: Cryptocurrency added to watchlist successfully.
+        "400":
+          description: Invalid input or cryptocurrency already in watchlist.
+        "401":
+          description: Unauthorized.
+        "500":
+          description: Server error.
+  /api/v1/watchlist/removeFromWatchlist:
+    delete:
+      summary: Remove a cryptocurrency from the user's watchlist
+      tags:
+        - Watchlist
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - cryptoId
+              properties:
+                cryptoId:
+                  type: string
+                  description: The ID of the cryptocurrency to remove.
+      responses:
+        "200":
+          description: Cryptocurrency removed from watchlist successfully.
+        "400":
+          description: Invalid input or cryptocurrency not in watchlist.
+        "401":
+          description: Unauthorized.
+        "500":
+          description: Server error.
+  /api/v1/watchlist/{userId}:
+    get:
+      summary: Get a user's watchlist
+      tags:
+        - Watchlist
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: The ID of the user whose watchlist to retrieve.
+      responses:
+        "200":
+          description: Successfully retrieved user's watchlist.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      type: string
+                      example: bitcoin
+        "401":
+          description: Unauthorized.
+        "404":
+          description: User not found.
+        "500":
+          description: Server error.
+  /api/v1/user/csrf-token:
+    get:
+      summary: Get CSRF token
+      tags:
+        - User
+      responses:
+        "200":
+          description: Successfully retrieved CSRF token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _csrf:
+                    type: string
+                    example: someCsrfTokenString
+        "500":
+          description: Server error.
+  /api/v1/user/signup:
+    post:
+      summary: Register a new user (with validation)
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  description: The user's desired username.
+                  minLength: 5
+                  maxLength: 20
+                email:
+                  type: string
+                  format: email
+                  description: The user's email address.
+                password:
+                  type: string
+                  format: password
+                  description: The user's password.
+                  minLength: 5
+                  maxLength: 15
+      responses:
+        "201":
+          description: User registered successfully.
+        "400":
+          description: Invalid input or user already exists.
+        "500":
+          description: Server error.
+  /api/v1/user/signin:
+    post:
+      summary: Sign in a user (with validation)
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  description: The user's username.
+                password:
+                  type: string
+                  format: password
+                  description: The user's password.
+      responses:
+        "200":
+          description: User signed in successfully.
+        "400":
+          description: Invalid credentials.
+        "500":
+          description: Server error.
+  /api/v1/user/logout:
+    get:
+      summary: Log out a user
+      tags:
+        - User
+      responses:
+        "200":
+          description: User logged out successfully.
+        "500":
+          description: Server error.
+  /api/v1/user/currentUser:
+    get:
+      summary: Get current authenticated user
+      tags:
+        - User
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved current user.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  user:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: 60c72b2f9b1e8e001c8e8e8e
+                      username:
+                        type: string
+                        example: testuser
+                      email:
+                        type: string
+                        example: test@example.com
+        "401":
+          description: Unauthorized.
+        "500":
+          description: Server error.
+  /api/v1/user/allUsers:
+    get:
+      summary: Get all users
+      tags:
+        - User
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved all users.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                          example: 60c72b2f9b1e8e001c8e8e8e
+                        username:
+                          type: string
+                          example: testuser
+                        email:
+                          type: string
+                          example: test@example.com
+        "401":
+          description: Unauthorized.
+        "500":
+          description: Server error.
+  /api/v1/user/verifyToken:
+    get:
+      summary: Verify user token
+      tags:
+        - User
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Token is valid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: Token is valid!
+        "401":
+          description: Token is not valid or not available.
+        "500":
+          description: Server error.
+  /api/v1/user/updateUser/{id}:
+    patch:
+      summary: Update user details
+      tags:
+        - User
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The ID of the user to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  description: New username.
+                email:
+                  type: string
+                  format: email
+                  description: New email address.
+                password:
+                  type: string
+                  format: password
+                  description: New password.
+      responses:
+        "200":
+          description: User updated successfully.
+        "400":
+          description: Invalid input.
+        "401":
+          description: Unauthorized.
+        "404":
+          description: User not found.
+        "500":
+          description: Server error.
+  /api/v1/file/uploadFile/{userId}:
+    post:
+      summary: Upload a file for a specific user
+      tags:
+        - File Operations
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: The ID of the user to associate the file with.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload.
+      responses:
+        "200":
+          description: File uploaded successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  message:
+                    type: string
+                    example: File uploaded successfully!
+        "400":
+          description: Invalid input or file upload failed.
+        "401":
+          description: Unauthorized.
+        "500":
+          description: Server error.
+  /api/v1/file/getFile/{userId}:
+    get:
+      summary: Retrieve a file for a specific user
+      tags:
+        - File Operations
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: The ID of the user whose file to retrieve.
+      responses:
+        "200":
+          description: File retrieved successfully.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "401":
+          description: Unauthorized.
+        "404":
+          description: File not found.
+        "500":
+          description: Server error.
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: token # The name of the cookie that holds the JWT token
+
+openapi: 3.0.0
+info:
+  title: Crypto Server API
+  version: 1.0.0
+  description: API documentation for the Crypto Server application.
+servers:
+  - url: http://localhost:8000
+    description: Development server

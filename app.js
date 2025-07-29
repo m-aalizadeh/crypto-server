@@ -11,6 +11,10 @@ const {
 } = require("./src/middlewares/activityLogger");
 const routes = require("./src/routes");
 const dotenv = require("dotenv");
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+const swaggerDocument = YAML.load("./docs/swagger.yaml");
+
 const { connectDb } = require("./src/config/database");
 
 dotenv.config();
@@ -39,6 +43,7 @@ app.use(activityLogger);
 app.use(express.json());
 app.use(timeout);
 app.use("/api/v1", routes);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(errorLogger);
 
 module.exports = app;
