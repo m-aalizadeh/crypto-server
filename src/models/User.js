@@ -17,7 +17,12 @@ const userSchema = new Schema({
   role: {
     type: String,
     enum: ["admin", "mentor"],
-    default: "admin",
+    default: "mentor",
+  },
+  status: {
+    type: String,
+    enum: ["active", "inactive"],
+    default: "active",
   },
   online: { type: Boolean, default: false },
 });

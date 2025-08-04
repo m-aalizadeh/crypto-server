@@ -6,7 +6,7 @@ const { signToken } = require("../utils/isAuth");
 
 exports.signUp = async (req, res) => {
   try {
-    const { username, password, email, role } = req.body;
+    const { username, password, email, role, status } = req.body;
     const errors = validationResult(req).array();
     if (errors.length) {
       return res.status(422).json({
@@ -16,6 +16,7 @@ exports.signUp = async (req, res) => {
           email,
           username,
           role,
+          status,
         },
         validationErrors: errors,
       });
@@ -26,6 +27,7 @@ exports.signUp = async (req, res) => {
       email,
       password: hashedPassword,
       role,
+      status: "active",
       online: true,
     });
     await newUser.save();
@@ -101,7 +103,7 @@ exports.signin = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find({}, { password: 0 });
-    return res.status(200).json({ status: "success", users });
+    return res.status(200).json({ status: "success", data: { users } });
   } catch (error) {
     return res
       .status(500)
@@ -110,15 +112,15 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-  // const token = req.cookies.token;
-  // const decoded = await jwt.verify(token, process.env.SECRET_KEY);
-  // await User.findByIdAndUpdate(
-  //   decoded.userId,
-  //   {
-  //     online: false,
-  //   },
-  //   { new: true }
-  // );
+  const token = req.cookies.token;
+  const decoded = await jwt.verify(token, process.env.SECRET_KEY);
+  await User.findByIdAndUpdate(
+    decoded.userId,
+    {
+      online: false,
+    },
+    { new: true }
+  );
   res.clearCookie("token");
   res
     .status(200)
