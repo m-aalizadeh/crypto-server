@@ -1,4 +1,3 @@
-const axios = require("axios");
 const WatchList = require("../models/Watchlist");
 
 exports.addToWatchlist = async (req, res) => {

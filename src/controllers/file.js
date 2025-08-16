@@ -34,7 +34,7 @@ exports.getFile = async (req, res) => {
     }
     res.set("Content-Type", file.contentType);
     res.set("Content-Disposition", `attachment; filename="${file.name}"`);
-    return res.status(200).json({ status: "success", data: file.data });
+    return res.status(200).json({ status: "success", file: file.data });
   } catch (err) {
     res.status(500).json({ status: "error", message: err.message });
   }

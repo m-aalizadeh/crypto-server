@@ -9,6 +9,7 @@ const {
   getAllUsers,
   validateToken,
   getCurrentUser,
+  deleteUser,
 } = require("../controllers/user");
 const { getCsrfToken } = require("../controllers/csrf");
 const { verifyToken } = require("../utils/isAuth");
@@ -82,6 +83,7 @@ router.get("/logout", logout);
 router.get("/currentUser", verifyToken, getCurrentUser);
 router.get("/allUsers", verifyToken, getAllUsers);
 router.get("/verifyToken", verifyToken, validateToken);
-router.patch("/updateUser/:id", updateUser);
+router.patch("/updateUser/:id", verifyToken, updateUser);
+router.delete("/deleteUser/:id", verifyToken, deleteUser);
 
 module.exports = router;

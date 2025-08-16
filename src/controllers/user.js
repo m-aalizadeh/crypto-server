@@ -41,7 +41,8 @@ exports.signUp = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "User Created Successfully",
-      data: { token, user: newUser },
+      token,
+      user: newUser,
     });
   } catch (error) {
     return res
@@ -91,7 +92,8 @@ exports.signin = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "User signed in successfully",
-      data: { token, user: updatedUser },
+      token,
+      user: updatedUser,
     });
   } catch (error) {
     return res
@@ -103,7 +105,7 @@ exports.signin = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find({}, { password: 0 });
-    return res.status(200).json({ status: "success", data: { users } });
+    return res.status(200).json({ status: "success", users });
   } catch (error) {
     return res
       .status(500)
@@ -137,7 +139,7 @@ exports.getCurrentUser = async (req, res) => {
         .status(404)
         .json({ status: "error", message: "User not found" });
     }
-    return res.status(200).json({ status: "success", data: user });
+    return res.status(200).json({ status: "success", user });
   } catch (error) {
     return res
       .status(500)
@@ -183,7 +185,7 @@ exports.updateUser = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "User updated Successfully!",
-      newUser,
+      user: newUser,
     });
   } catch (err) {
     return res.status(500).json({
@@ -191,4 +193,22 @@ exports.updateUser = async (req, res) => {
       message: "Error during update customer  " + err.message,
     });
   }
+};
+
+exports.deleteUser = async ({ params }, res) => {
+  User.findOneAndDelete({ _id: params.id })
+    .then((dbUserData) => {
+      if (!dbUserData) {
+        return res.status(404).json({
+          message: "No user data found with this id!",
+          status: "error",
+        });
+      }
+      res.json({ message: "User deleted successfully!", status: "success" });
+    })
+    .catch((err) =>
+      res
+        .status(500)
+        .json({ status: "error", message: "Error during delete user" })
+    );
 };
