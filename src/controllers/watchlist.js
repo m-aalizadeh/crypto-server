@@ -31,6 +31,7 @@ exports.addToWatchlist = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "Coin added to watchlist successfully",
+      watchList: updatedWatchlist,
     });
   } catch (error) {
     return res.status(500).json({
@@ -43,15 +44,15 @@ exports.addToWatchlist = async (req, res) => {
 
 exports.removeFromWatchlist = async (req, res) => {
   try {
-    const { coinId, userId } = req.body;
-
-    const watchlist = await WatchList.findOne({ user: userId });
-    if (watchlist) {
-      watchlist.items = watchlist.items.filter((item) => item.id !== coinId);
-      await watchlist.save();
+    const { coinId, userId } = req.query;
+    const watchList = await WatchList.findOne({ user: userId });
+    if (watchList) {
+      watchList.items = watchList.items.filter((item) => item.id !== coinId);
+      await watchList.save();
       return res.status(200).json({
         status: "success",
         message: "Coin removed from watchlist successfully",
+        watchList,
       });
     }
     return res.status(400).json({
@@ -73,7 +74,9 @@ exports.getWatchlist = async (req, res) => {
     const watchlist = await WatchList.findOne({ user: userId });
 
     if (watchlist) {
-      return res.status(200).json({ status: "success", data: watchlist.items });
+      return res
+        .status(200)
+        .json({ status: "success", watchList: watchlist.items });
     }
 
     res.status(200).json([]);
