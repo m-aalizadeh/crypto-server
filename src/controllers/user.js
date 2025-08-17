@@ -155,7 +155,7 @@ exports.validateToken = async (req, res) => {
   } catch (error) {
     return res
       .status(500)
-      .json({ status: "error", message: "Error during fetching users " });
+      .json({ status: "error", message: "Token got expired! " });
   }
 };
 
